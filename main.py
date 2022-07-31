@@ -1,16 +1,41 @@
-# This is a sample Python script.
+import discord
+from discord.ext import commands
+import os
+from dotenv import load_dotenv
+import asyncio
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+client = discord.Client()
+load_dotenv()
+discord_key = os.getenv("discord_key")
 
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+class PointGameBot(commands.Bot):
+    # Initializes the bot, determines its prefix as $
+    def __init__(self):
+        super().__init__(
+            command_prefix="$",
+            help_command=commands.DefaultHelpCommand(no_category="List of Commands")
+        )
+        self.bot = commands.Bot(
+            command_prefix="$"
+        )
+
+        # When the bot is officially online
+        @self.event
+        async def on_ready():
+            print("Bot logged in!")
+
+        @self.command(brief="sends back text")
+        async def test(ctx, arg):
+            await ctx.send(arg)
+
+        # Function occurs when test function has an error
+        @test.error
+        async def test_error(ctx, error):
+            # isinstance function checks if specified object(error) is of specified type (error type)
+            if isinstance(error, discord.ext.commands.errors.MissingRequiredArgument):
+                await ctx.send("No argument found")
 
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+bot = PointGameBot()
+bot.run(discord_key)
