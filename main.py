@@ -3,7 +3,7 @@ from discord.ext import commands
 import os
 import subprocess
 from dotenv import load_dotenv
-from riotwatcher import LolWatcher, ApiError
+from riotwatcher import LolWatcher, ApiError, TftWatcher
 from datetime import datetime
 import asyncio
 
@@ -15,6 +15,7 @@ load_dotenv()
 discord_key = os.getenv("discord_key")
 riot_key = os.getenv("riot_key")
 lol_watcher = LolWatcher(riot_key)
+tft_watcher = TftWatcher(riot_key)
 
 
 class StarBot(commands.Bot):
@@ -49,9 +50,13 @@ class StarBot(commands.Bot):
             player_info = lol_watcher.summoner.by_name("na1", summoner_name)
             player_level = player_info["summonerLevel"]
             player_rank = lol_watcher.league.by_summoner("na1", player_info["id"])
+            player_tft_rank = tft_watcher.league.by_summoner("na1", player_info["id"])
             my_string = f"{summoner_name} (Level {player_level}): " + "\n"
             for i in range(len(player_rank)):
                 my_string += summoner_string(player_rank[i]) + "\n"
+            my_string += summoner_string(player_tft_rank[0])
+            if (len(player_rank)) == 0 and (len(player_tft_rank)) == 0:
+                my_string += "Unranked at everything lul"
             await channel.send("```" + my_string + "```")
 
         @summoner.error
