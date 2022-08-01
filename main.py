@@ -21,11 +21,11 @@ class StarBot(commands.Bot):
     # Initializes the bot, determines its prefix as $
     def __init__(self):
         super().__init__(
-            command_prefix="$",
+            command_prefix="*",
             help_command=commands.DefaultHelpCommand(no_category="List of Commands")
         )
         self.bot = commands.Bot(
-            command_prefix="$"
+            command_prefix="*"
         )
 
         # When the bot is officially online
@@ -44,10 +44,15 @@ class StarBot(commands.Bot):
             if isinstance(error, discord.ext.commands.errors.MissingRequiredArgument):
                 await channel.send("No argument found")
 
-        @self.command(brief="sends back league level")
+        @self.command(brief="sends back league info")
         async def summoner(channel, summoner_name):
             player_info = lol_watcher.summoner.by_name("na1", summoner_name)
-            await channel.send("Level: " + str(player_info["summonerLevel"]))
+            player_level = player_info["summonerLevel"]
+            player_rank = lol_watcher.league.by_summoner("na1", player_info["id"])
+            my_string = f"{summoner_name} (Level {player_level}): " + "\n"
+            for i in range(len(player_rank)):
+                my_string += summoner_string(player_rank[i]) + "\n"
+            await channel.send("```" + my_string + "```")
 
         @summoner.error
         async def summoner_error(channel, error):

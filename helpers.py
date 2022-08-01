@@ -29,5 +29,12 @@ def champ_mastery_string(player_dict):
     return champ_string
 
 
+def summoner_string(player_dict):
+    queue_type = player_dict["queueType"]
+    tier = player_dict["tier"]
+    rank = player_dict["rank"]
+    my_string = queue_type + ": " + tier + " " + rank
+    return my_string
+
 
 
