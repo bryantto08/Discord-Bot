@@ -89,14 +89,15 @@ class StarBot(commands.Bot):
             await channel.send("Summoner not found!")
 
         @self.command(brief="sends back match history")
-        async def match_history(channel, summoner_name):
+        async def match_history(channel, *, summoner_name):
             # Used to retrieve summoner id
             player_info = lol_watcher.summoner.by_name("na1", summoner_name)
+            # Returns a json dictionary containing 5 matches
             player_match_history = lol_watcher.match.matchlist_by_puuid("na1", player_info["puuid"], count=5)
             my_string = ""
             for i in player_match_history:
                 match = lol_watcher.match.by_id("na1", i)
-                my_string += match_history_string(match, summoner_name) + "\n"
+                my_string += match_history_string(match, summoner_name) + "\n" + "\n"
             self.count += 1
             if sus_check():
                 await channel.send("sus")
