@@ -1,5 +1,6 @@
 from datetime import datetime
 import json
+import random
 
 
 def change_to_timestamp(time):
@@ -36,5 +37,28 @@ def summoner_string(player_dict):
     my_string = queue_type + ": " + tier + " " + rank
     return my_string
 
+def match_history_string(match_dict, summoner):
+    game_mode = match_dict["info"]["gameMode"]
+    for i in range(len(match_dict["info"]["participants"])):
+        match = match_dict["info"]["participants"][i]["summonerName"].replace(" ", "")
+        if match.lower() == summoner.lower():
+            summonerName = match_dict["info"]["participants"][i]
+
+    kills = summonerName["kills"]
+    deaths = summonerName["deaths"]
+    assists = summonerName["assists"]
+    kda = str(kills) + "/" + str(deaths) + "/" + str(assists)
+    if summonerName["win"]:
+        result = "Win"
+    else:
+        result = "Loss"
+    my_string = "Game Mode: " + game_mode + ", KDA: " + kda + ", Result: " + result
+    return my_string
+
+
+def sus_check():
+    count = random.randint(1,10)
+    if count == 3:
+        return True
 
 
