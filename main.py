@@ -3,7 +3,7 @@ from discord.ext import commands
 import os
 import subprocess
 from dotenv import load_dotenv
-from riotwatcher import LolWatcher, ApiError, TftWatcher
+from riotwatcher import LolWatcher, ApiError, TftWatcher, ValWatcher, RiotWatcher
 from datetime import datetime
 import asyncio
 # import PyNaCl
@@ -19,6 +19,8 @@ discord_key = os.getenv("discord_key")
 riot_key = os.getenv("riot_key")
 lol_watcher = LolWatcher(riot_key)
 tft_watcher = TftWatcher(riot_key)
+val_watcher = ValWatcher(riot_key)
+riot_watcher = RiotWatcher(riot_key)
 
 
 class StarBot(commands.Bot):
@@ -108,6 +110,14 @@ class StarBot(commands.Bot):
             if sus_check():
                 await channel.send("sus")
             await channel.send("```" + my_string + "```")
+
+        @self.command(brief="val")
+        async def val_profile(channel, * summoner_name):
+            summoner_name = summoner_name.split("#")
+            puuid = riot_watcher.account.by_riot_id(summoner_name[0], summoner_name[1])
+            match_history = val_watcher.match.matchlist_by_puuid("NA", puuid)
+            file = open("output.txt","w")
+            file.write(match_history)
 
         # @self.command()
         # async def join(channel):
