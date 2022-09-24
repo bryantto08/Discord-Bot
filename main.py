@@ -9,6 +9,7 @@ import asyncio
 # import PyNaCl
 from keep_alive import keep_alive
 
+
 import helpers
 from helpers import *
 
@@ -37,6 +38,41 @@ class StarBot(commands.Bot):
         @self.event
         async def on_ready():
             print("Bot logged in!")
+
+        self.remove_command('help')
+        @self.command("help!")
+        async def help(channel):
+            embed = discord.Embed(
+                title="Bot Commands",
+                description="sussy commands",
+                color=discord.Color.blue()
+            )
+            embed.add_field(
+                name="*test",
+                value="For Testing this Sussy Little Bot",
+                inline=False
+            )
+            embed.add_field(
+                name="*help",
+                value="List of Commands",
+                inline=False
+            )
+            embed.add_field(
+                name="*summoner",
+                value="League of Legends Summoner Stats",
+                inline=False
+            )
+            embed.add_field(
+                name="*mastery",
+                value="League of Legends Mastery Stats",
+                inline=False
+            )
+            embed.add_field(
+                name="*match_history",
+                value="League of Legends Match History (Last 5 Games)",
+                inline=False
+            )
+            await channel.send(embed=embed)
 
         @self.command(brief="sends back text")
         async def test(channel, *, arg):
