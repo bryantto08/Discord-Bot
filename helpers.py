@@ -29,7 +29,7 @@ def champ_mastery_string(player_dict):
                    "Champion Points: " + str(champ_points) + " | " + "Last Played: " + str(last_played)
     return champ_string
 
-# String used for the summoner command
+
 def summoner_string(player_dict):
     queue_type = player_dict["queueType"]
     tier = player_dict["tier"]
@@ -37,94 +37,27 @@ def summoner_string(player_dict):
     my_string = queue_type + ": " + tier + " " + rank
     return my_string
 
-
-# Takes the multikill int and converts it to proper string
-def multikill_converter(num):
-    if num == 0:
-        return "No Kills"
-    if num == 1:
-        return "Single Kill"
-    if num == 2:
-        return "Double Kill"
-    if num == 3:
-        return "Triple Kill"
-    if num == 4:
-        return "Quadra Kill"
-    if num == 5:
-        return "Penta Kill"
-    else:
-        return "wtf"
-
-
-# Returns a string containing appropiate Match History stats according to json file
 def match_history_string(match_dict, summoner):
     game_mode = match_dict["info"]["gameMode"]
     for i in range(len(match_dict["info"]["participants"])):
         match = match_dict["info"]["participants"][i]["summonerName"].replace(" ", "")
-        summoner = summoner.replace(" ", "")
         if match.lower() == summoner.lower():
             summonerName = match_dict["info"]["participants"][i]
 
-    # Retrieving certain data from the summonerName JSON dictionary
     kills = summonerName["kills"]
     deaths = summonerName["deaths"]
     assists = summonerName["assists"]
-    champion = summonerName["championName"]
-    position = summonerName["teamPosition"]
-
-    # Changing the name of utility to support
-    if position == "UTILITY":
-        position == "SUPPORT"
-
-    largest_multi_kill = multikill_converter(summonerName["largestMultiKill"])
     kda = str(kills) + "/" + str(deaths) + "/" + str(assists)
     if summonerName["win"]:
         result = "Win"
     else:
         result = "Loss"
-    points = point_tracker(deaths, largest_multi_kill, result, position)
-    # ARAM doesn't contain Role
-    if game_mode == "ARAM":
-        my_string = "Game Mode: " + game_mode + ", Champion: " + champion + ", KDA: " + kda \
-                    + ", Multikill: " + largest_multi_kill + ", Result: " + result + ", Points: " + str(points)
-    else:
-        my_string = "Game Mode: " + game_mode + ", Role: " + position + ", Champion: " + champion + ", KDA: " + kda \
-                + ", Multikill: " + largest_multi_kill + ", Result: " + result + ", Points: " + str(points)
+    my_string = "Game Mode: " + game_mode + ", KDA: " + kda + ", Result: " + result
     return my_string
 
 
-# Calculates the number of points gained from the specific league game
-def point_tracker(deaths, largest_multi_kill, win, is_support):
-    points = 0
-    if win == "Win" and is_support == "SUPPORT":
-        points += 100
-    elif win == "Win":
-        points += 10
-
-    if largest_multi_kill == "Double Kill":
-        points += 50
-    elif largest_multi_kill == "Triple Kill":
-        points += 200
-    elif largest_multi_kill == "Quadra Kill":
-        points += 1000
-    elif largest_multi_kill == "Penta Kill":
-        points += 15000
-    if deaths == 0 and is_support == "SUPPORT":
-        points += 5000
-    elif deaths == 0:
-        points += 500
-    if (deaths - 10) > 0:
-        d = deaths - 10
-        points -= 100
-        for i in range(d):
-            points -= 10
-
-    return points
-
-
-# sus
 def sus_check():
-    count = random.randint(1, 10)
+    count = random.randint(1,10)
     if count == 3:
         return True
 
