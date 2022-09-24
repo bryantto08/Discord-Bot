@@ -112,9 +112,9 @@ class StarBot(commands.Bot):
             await channel.send("```" + my_string + "```")
 
         @self.command(brief="val")
-        async def val_profile(channel, * summoner_name):
+        async def val_profile(channel, *, summoner_name):
             summoner_name = summoner_name.split("#")
-            puuid = riot_watcher.account.by_riot_id(summoner_name[0], summoner_name[1])
+            puuid = riot_watcher.account.by_riot_id("AMERICAS", summoner_name[0], summoner_name[1])
             match_history = val_watcher.match.matchlist_by_puuid("NA", puuid)
             file = open("output.txt","w")
             file.write(match_history)
