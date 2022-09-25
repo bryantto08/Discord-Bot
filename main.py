@@ -3,7 +3,7 @@ from discord.ext import commands
 import os
 import subprocess
 from dotenv import load_dotenv
-from riotwatcher import LolWatcher, ApiError, TftWatcher, ValWatcher, RiotWatcher
+from riotwatcher import LolWatcher, ApiError, TftWatcher
 from datetime import datetime
 import asyncio
 # import PyNaCl
@@ -20,8 +20,6 @@ discord_key = os.getenv("discord_key")
 riot_key = os.getenv("riot_key")
 lol_watcher = LolWatcher(riot_key)
 tft_watcher = TftWatcher(riot_key)
-val_watcher = ValWatcher(riot_key)
-riot_watcher = RiotWatcher(riot_key)
 
 
 class StarBot(commands.Bot):
@@ -31,6 +29,7 @@ class StarBot(commands.Bot):
                          intents=intents,
                          help_command=commands.DefaultHelpCommand(
                              no_category="List of Commands"))
+        self.remove_command("help")
         self.bot = commands.Bot(command_prefix="*", intents=intents)
         self.count = 0
 
@@ -39,8 +38,7 @@ class StarBot(commands.Bot):
         async def on_ready():
             print("Bot logged in!")
 
-        self.remove_command('help')
-        @self.command("help!")
+        @self.command()
         async def help(channel):
             embed = discord.Embed(
                 title="Bot Commands",
@@ -76,10 +74,14 @@ class StarBot(commands.Bot):
 
         @self.command(brief="sends back text")
         async def test(channel, *, arg):
+            embed=discord.Embed(
+                title=arg
+            )
+
             self.count += 1
             if sus_check():
-                await channel.send("sus")
-            await channel.send(arg)
+                await channel.send(embed=discord.Embed(title="sus"))
+            await channel.send(embed=embed)
 
         # Function occurs when test function has an error
         @test.error
@@ -97,16 +99,32 @@ class StarBot(commands.Bot):
                 "na1", player_info["id"])
             player_tft_rank = tft_watcher.league.by_summoner(
                 "na1", player_info["id"])
-            my_string = f"{summoner_name} (Level {player_level}): " + "\n"
+            embed = discord.Embed(
+                title=player_info["name"] + " (Level:" + str(player_level) + ")",
+                color=discord.Color.blurple()
+            )
             for i in range(len(player_rank)):
-                my_string += summoner_string(player_rank[i]) + "\n"
-            my_string += summoner_string(player_tft_rank[0])
+                embed.add_field(
+                    name=player_rank[i]["queueType"],
+                    value=player_rank[i]["tier"] + " " + player_rank[i]["rank"],
+                    inline=False
+
+                )
+            if len(player_tft_rank) > 0:
+                embed.add_field(
+                    name=player_rank[i]["queueType"],
+                    value=player_rank[i]["tier"] + " " + player_rank[i]["rank"],
+                    inline=False
+                )
             if (len(player_rank)) == 0 and (len(player_tft_rank)) == 0:
-                my_string += "Unranked at everything lul"
+                embed.add_field(
+                    name="Unranked at everything lul"
+                )
             self.count += 1
+
             if sus_check():
-                await channel.send("sus")
-            await channel.send("```" + my_string + "```")
+                await channel.send(embed=discord.Embed(title="sus"))
+            await channel.send(embed=embed)
 
         @summoner.error
         async def summoner_error(channel, error):
@@ -118,13 +136,16 @@ class StarBot(commands.Bot):
             player_info = lol_watcher.summoner.by_name("na1", summoner_name)
             player_mastery = lol_watcher.champion_mastery.by_summoner(
                 "na1", player_info["id"])
-            my_string = "Top 5 Champions: " + "\n"
+            embed = discord.Embed(
+                title=player_info["name"] + "'s Top 5 Champions",
+                color=discord.Color.blurple()
+            )
             for i in range(5):
-                my_string += champ_mastery_string(player_mastery[i]) + "\n"
+                champ_mastery_string(player_mastery[i], embed)
             self.count += 1
             if sus_check():
-                await channel.send("sus")
-            await channel.send("```" + my_string + "```")
+                await channel.send(embed=discord.Embed(title="sus"))
+            await channel.send(embed=embed)
 
         @mastery.error
         async def mastery_error(channel, error):
@@ -137,16 +158,16 @@ class StarBot(commands.Bot):
             # Returns a json dictionary containing 5 matches
             player_match_history = lol_watcher.match.matchlist_by_puuid(
                 "na1", player_info["puuid"], count=5)
-            my_string = ""
+            embed = discord.Embed(
+                title=player_info["name"] + "'s Match History",
+            )
             for i in player_match_history:
                 match = lol_watcher.match.by_id("na1", i)
-                my_string += match_history_string(match,
-                                                  summoner_name) + "\n" + "\n"
+                match_history_string(match, summoner_name, embed)
             self.count += 1
             if sus_check():
-                await channel.send("sus")
-            await channel.send("```" + my_string + "```")
-
+                await channel.send(embed=discord.Embed(title="sus"))
+            await channel.send(embed=embed)
 
         # @self.command()
         # async def join(channel):
@@ -160,5 +181,4 @@ class StarBot(commands.Bot):
 
 
 bot = StarBot()
-keep_alive()
 bot.run(discord_key)
